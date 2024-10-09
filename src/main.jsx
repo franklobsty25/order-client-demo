@@ -18,7 +18,7 @@ const router = createBrowserRouter([
   {
     path: '/',
     element: <App />,
-    errorElement: <div>Oops!, An error occurred, Back to Home Page!</div>,
+    errorElement: <Error />,
   },
   {
     element: <AuthLayout />,
@@ -61,6 +61,5 @@ const router = createBrowserRouter([
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <RouterProvider router={router} />
-    {/* <App /> */}
   </StrictMode>
 );
