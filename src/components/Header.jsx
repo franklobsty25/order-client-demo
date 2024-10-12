@@ -1,9 +1,13 @@
+import { cilAccountLogout } from '@coreui/icons';
+import CIcon from '@coreui/icons-react';
 import { Container, Nav, Navbar } from 'react-bootstrap';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 const Header = () => {
   const location = useLocation();
-  
+  const navigate = useNavigate();
+  const user = JSON.parse(localStorage.getItem('user'));
+
   switch (location.pathname) {
     case '/orders':
       document.getElementById('orders')?.classList.add('link-primary');
@@ -36,6 +40,12 @@ const Header = () => {
       break;
   }
 
+  const logout = () => {
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+    navigate('/login');
+  }
+
   return (
     <>
       <Container fluid className="border-bottom">
@@ -66,12 +76,20 @@ const Header = () => {
               </Link>
             </Nav.Item>
             <Nav.Item className="pe-3">
-              <Link id="customers" to="/customers" className="text-decoration-none text-dark">
+              <Link
+                id="customers"
+                to="/customers"
+                className="text-decoration-none text-dark"
+              >
                 Customers
               </Link>
             </Nav.Item>
             <Nav.Item className="pe-3">
-              <Link id="products" to="/products" className="text-decoration-none text-dark">
+              <Link
+                id="products"
+                to="/products"
+                className="text-decoration-none text-dark"
+              >
                 Products
               </Link>
             </Nav.Item>
@@ -89,7 +107,14 @@ const Header = () => {
                   width="30"
                   className="border rounded-circle nav-icons"
                 />
-                <Navbar.Text id="user-info">Alchemyst Cafe</Navbar.Text>
+                {user && (
+                  <Navbar.Text id="user-info">
+                    {user?.firstname} {user?.lastname}
+                  </Navbar.Text>
+                )}
+              </Nav.Item>
+              <Nav.Item>
+                <CIcon icon={cilAccountLogout} className='icon-size text-danger' onClick={logout} />
               </Nav.Item>
             </Nav>
           </Nav>

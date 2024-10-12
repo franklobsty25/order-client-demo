@@ -12,19 +12,20 @@ import {
   UimGithub,
   UimGoogle,
 } from '@iconscout/react-unicons-monochrome';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Formik } from 'formik';
 import * as yup from 'yup';
 import InputGroupText from 'react-bootstrap/esm/InputGroupText';
 import { cilLockLocked, cilLockUnlocked } from '@coreui/icons';
 import CIcon from '@coreui/icons-react';
 import { useState } from 'react';
+import { register } from '../../server-processing';
 
 const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [toast, setToast] = useState(false);
-  const [passwordInvalid, setPasswordInvalid] = useState('');
+  const navigate = useNavigate();
 
   const pattern = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/;
   const numberPattern = /\d+/;
@@ -92,7 +93,6 @@ const Register = () => {
           }}
           onSubmit={(values, { setSubmitting, resetForm }) => {
             if (values.password !== values.confirmPassword) {
-              setPasswordInvalid("Password doesn't match");
               setToast(
                 <Toast
                   onClose={() => setToast(false)}
@@ -106,7 +106,27 @@ const Register = () => {
               setSubmitting(false);
               return;
             }
-            console.log(values);
+            
+            register(values).then((response) => {
+              const { user, token } = response.data.data;
+              localStorage.setItem('user', JSON.stringify(user));
+              localStorage.setItem('token', JSON.stringify(token));
+              navigate('/home');
+              setSubmitting(false);
+              resetForm();
+            }).catch((error) => {
+              setToast(
+                <Toast
+                  onClose={() => setToast(false)}
+                  show={true}
+                  autohide
+                  bg="danger"
+                >
+                  <Toast.Body>{error.response.data.message || error.message}</Toast.Body>
+                </Toast>
+              );
+              setSubmitting(false)
+            });
           }}
         >
           {({

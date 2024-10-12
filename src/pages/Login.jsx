@@ -1,24 +1,36 @@
-import { Button, Col, Row, Form, Spinner, InputGroup } from 'react-bootstrap';
+import {
+  Button,
+  Col,
+  Row,
+  Form,
+  Spinner,
+  InputGroup,
+  Toast,
+  ToastContainer,
+} from 'react-bootstrap';
 import {
   UimFacebook,
   UimGithub,
   UimGoogle,
 } from '@iconscout/react-unicons-monochrome';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Formik } from 'formik';
 import * as yup from 'yup';
 import InputGroupText from 'react-bootstrap/esm/InputGroupText';
 import CIcon from '@coreui/icons-react';
 import { cilLockLocked, cilLockUnlocked } from '@coreui/icons';
 import { useState } from 'react';
+import { login } from '../../server-processing';
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [toast, setToast] = useState(false);
+  const navigate = useNavigate();
 
   const schema = yup.object().shape({
     email: yup.string().email().required(),
     password: yup.string().required(),
-    rememberMe: yup.boolean().required(),
+    rememberMe: yup.boolean(),
   });
 
   const handleShowPassword = () => {
@@ -33,7 +45,6 @@ const Login = () => {
 
   return (
     <>
-      <h6>Habu</h6>
       <Col>
         <h1>Welcome back</h1>
         <p className="mt-2 mb-4 fontt-w-100">
@@ -44,7 +55,31 @@ const Login = () => {
           validationSchema={schema}
           initialValues={{ email: '', password: '' }}
           onSubmit={(values, { setSubmitting, resetForm }) => {
-            console.log(values);
+            login(values)
+              .then((response) => {
+                const { user, token } = response.data.data;
+                localStorage.setItem('user', JSON.stringify(user));
+                localStorage.setItem('token', JSON.stringify(token));
+                navigate('/home');
+                setSubmitting(false);
+                resetForm();
+              })
+              .catch((error) => {
+                console.error(error);
+                setToast(
+                  <Toast
+                    onClose={() => setToast(false)}
+                    show={true}
+                    autohide
+                    bg="danger"
+                  >
+                    <Toast.Body>
+                      {error.response.data.message || error.message}
+                    </Toast.Body>
+                  </Toast>
+                );
+                setSubmitting(false);
+              });
           }}
         >
           {({
@@ -122,6 +157,13 @@ const Login = () => {
                   {isSubmitting ? <Spinner /> : 'Sign in'}
                 </Button>
               </div>
+              <ToastContainer
+                position="top-end"
+                className="p-3"
+                style={{ zIndex: 1 }}
+              >
+                {toast}
+              </ToastContainer>
             </Form>
           )}
         </Formik>

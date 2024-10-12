@@ -1,14 +1,14 @@
-import {
-  Container,
-  Stack,
-} from 'react-bootstrap';
+import { Container, Stack } from 'react-bootstrap';
 import Header from './Header';
 import { Outlet } from 'react-router-dom';
+import dayjs from 'dayjs';
 
 const Dashboard = () => {
+  const user = JSON.parse(localStorage.getItem('user'));
+
   return (
     <>
-      <Container fluid className='min-vh-100'>
+      <Container fluid className="min-vh-100">
         <Header />
         <Stack
           id="intro-box"
@@ -16,7 +16,7 @@ const Dashboard = () => {
           className="justify-content-between align-items-start px-3 my-5"
         >
           <div>
-            <h4>Good Morning, Aaron!</h4>
+            {user && <h4>Welcome, {user?.firstname || ''}!</h4>}
             <p className="fw-lighter">
               Start your day by checking today's task and updates
             </p>
@@ -25,7 +25,7 @@ const Dashboard = () => {
             <Stack direction="horizontal" gap={3}>
               <span className="intro-text calender-box text-primary fw-bold px-4 py-3 rounded-4">
                 <img src="src/assets/calender.svg" width="20" />
-                &nbsp;&nbsp;November 21, 2023
+                &nbsp;&nbsp;{dayjs().format('MMMM D, YY')}
               </span>
               <img
                 src="src/assets/user.svg"
@@ -33,8 +33,14 @@ const Dashboard = () => {
                 className="rounded-circle border"
               />
               <div>
-                <p className="fw-semibold intro-text">Aaron Odegaard</p>
-                <p className="intro-text text-secondary">Cashier</p>
+                {user && (
+                  <p className="fw-semibold intro-text">
+                    {user?.firstname} {user?.lastname}
+                  </p>
+                )}
+                {user && (
+                  <p className="intro-text text-secondary">{user?.email}</p>
+                )}
               </div>
               <span>
                 <img src="" width="20" />
