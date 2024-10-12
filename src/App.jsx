@@ -3,7 +3,6 @@ import { Container, Button, Col, Row } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { lazy } from 'react';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-// const App = lazy(() => import('./App.jsx'));
 const Login = lazy(() => import('./pages/Login.jsx'));
 const Register = lazy(() => import('./pages/Register.jsx'));
 const AuthLayout = lazy(() => import('./components/AuthLayout.jsx'));
