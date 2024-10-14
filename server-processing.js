@@ -1,7 +1,5 @@
 import axios from 'axios';
 const baseUrl = import.meta.env.VITE_BASE_URL;
-const token = JSON.parse(localStorage.getItem('token'));
-const headers = { Authorization: 'Bearer ' + token };
 
 const register = async ({
   firstname,
@@ -39,6 +37,10 @@ const login = async ({ email, password, rememberMe }) => {
 
 const fetchProducts = async ({ page, perPage, search, all }) => {
   const params = { page, perPage, search, all };
+  const headers = {
+    Authorization: `Bearer ${JSON.parse(localStorage.getItem('token'))}`,
+  };
+
   try {
     return await axios.get(`${baseUrl}/api/v1/products/list`, {
       headers,
@@ -49,4 +51,34 @@ const fetchProducts = async ({ page, perPage, search, all }) => {
   }
 };
 
-export { register, login, fetchProducts };
+const fetchOrderStats = async () => {
+  const headers = {
+    Authorization: `Bearer ${JSON.parse(localStorage.getItem('token'))}`,
+  };
+
+  try {
+    return await axios.get(`${baseUrl}/api/v1/orders/overview/stats`, {
+      headers,
+    });
+  } catch (error) {
+    throw error;
+  }
+};
+
+const fetchOrders = async ({ page, perPage, search, all }) => {
+  const params = { page, perPage, search, all };
+  const headers = {
+    Authorization: `Bearer ${JSON.parse(localStorage.getItem('token'))}`,
+  };
+
+  try {
+    return await axios.get(`${baseUrl}/api/v1/orders/list`, {
+      headers,
+      params,
+    });
+  } catch (error) {
+    throw error;
+  }
+};
+
+export { register, login, fetchProducts, fetchOrderStats, fetchOrders };

@@ -1,48 +1,22 @@
 import React, { Suspense } from 'react';
-import { Container, Button, Col, Row } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
 import { lazy } from 'react';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 const Login = lazy(() => import('./pages/Login.jsx'));
 const Register = lazy(() => import('./pages/Register.jsx'));
-const AuthLayout = lazy(() => import('./components/AuthLayout.jsx'));
+const Home = lazy(() => import('./pages/Home.jsx'));
+const Orders = lazy(() => import('./pages/Orders.jsx'));
+const Customers = lazy(() => import('./pages/Customers.jsx'));
+const Products = lazy(() => import('./pages/Products.jsx'));
+const LandingPage = lazy(() => import('./pages/Landing.jsx'));
+const Error = lazy(() => import('./pages/Error.jsx'));
+import AuthLayout from './components/AuthLayout.jsx';
 import Dashboard from './components/Dashboard.jsx';
-import Orders from './pages/Orders.jsx';
-import Customers from './pages/Customers.jsx';
-import Products from './pages/Products.jsx';
-import Home from './pages/Home.jsx';
-import Error from './pages/Error.jsx';
 import Skeleton from 'react-loading-skeleton';
 
 const router = createBrowserRouter([
   {
     path: '/',
-    element: (<Container
-      fluid
-      className="d-flex justify-content-center align-items-center vh-100 text-light"
-      style={{ backgroundColor: '#062C2D' }}
-    >
-      <Container>
-        <Row>
-          <Col>
-            <Link to="/register">
-              <div className="d-grid">
-                <Button>Get Stared</Button>
-              </div>
-            </Link>
-          </Col>
-          <Col>
-            <Link to="/login" style={{ textDecoration: 'none' }}>
-              <div className="d-grid">
-                <Button className="" variant="outline-light">
-                  Login
-                </Button>
-              </div>
-            </Link>
-          </Col>
-        </Row>
-      </Container>
-    </Container>),
+    element: <LandingPage />,
     errorElement: <Error />,
   },
   {

@@ -1,5 +1,6 @@
-import { cilPencil, cilTrash, cilSearch } from '@coreui/icons';
+import { cilPencil, cilTrash, cilSearch, cilLowVision } from '@coreui/icons';
 import CIcon from '@coreui/icons-react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   Container,
   Badge,
@@ -14,9 +15,104 @@ import {
   CardHeader,
   Form,
   InputGroup,
+  Toast,
+  ToastContainer,
 } from 'react-bootstrap';
+import { fetchOrders, fetchOrderStats } from '../../server-processing';
+import { useDispatch, useSelector } from 'react-redux';
+
+const INITIAL_PARAMS = {
+  page: 1,
+  perPage: 15,
+  search: '',
+  all: false,
+};
 
 const Orders = () => {
+  const dispatch = useDispatch();
+  const orders = useSelector((state) => state.orders);
+  const [toast, setToast] = useState(false);
+  const [orderStats, setOrderStats] = useState({
+    totalOrders: 0,
+    completedOrders: 0,
+    pendingOrders: 0,
+    totalIncome: 0,
+  });
+
+  const fetchStatsData = useCallback(() => {
+    fetchOrderStats()
+      .then((response) => {
+        const { data } = response.data;
+        setOrderStats(data);
+      })
+      .catch((error) => {
+        setToast(
+          <Toast
+            onClose={() => setToast(false)}
+            show={true}
+            autohide
+            bg="danger"
+          >
+            <Toast.Body className="text-light">
+              {error.response.data.message || error.message}
+            </Toast.Body>
+          </Toast>
+        );
+      });
+  });
+
+  const fetchData = useCallback((params) => {
+    fetchOrders(params).then((response) => {
+      const { orders } = response.data.data;
+      const _orders = orders.data || orders;
+      const {
+        current_page,
+        last_page,
+        from,
+        to,
+        next_page_url,
+        prev_page_url,
+        per_page,
+        total,
+      } = orders;
+      
+      dispatch({
+        type: 'orders',
+        orders: {
+          data: _orders,
+          meta: {
+            current_page,
+            last_page,
+            from,
+            to,
+            next_page_url,
+            prev_page_url,
+            per_page,
+            total,
+          },
+        },
+      });
+
+    }).catch((error) => {
+      setToast(
+        <Toast onClose={() => setToast(false)} show={true} autohide bg="danger">
+          <Toast.Body className="text-light">
+            {error.response.data.message || error.message}
+          </Toast.Body>
+        </Toast>
+      );
+    })
+  });
+
+  useEffect(() => {
+    fetchStatsData();
+    fetchData(INITIAL_PARAMS);
+  }, []);
+  
+  const handleFiltering = (e) => {};
+
+  const handleSearchOrders = (e) => {};
+
   return (
     <>
       <Stack
@@ -35,7 +131,7 @@ const Orders = () => {
                 />
               </span>
               <div>
-                <span className="fw-bold">134</span>
+                <span className="fw-bold">{orderStats.totalOrders}</span>
                 <p className="chart-subtitle text-secondary">Total order</p>
               </div>
             </Stack>
@@ -64,7 +160,7 @@ const Orders = () => {
                 />
               </span>
               <div>
-                <span className="fw-bold">21</span>
+                <span className="fw-bold">{orderStats.pendingOrders}</span>
                 <p className="chart-subtitle text-secondary">
                   Order on process
                 </p>
@@ -95,7 +191,7 @@ const Orders = () => {
                 />
               </span>
               <div>
-                <span className="fw-bold">113</span>
+                <span className="fw-bold">{orderStats.completedOrders}</span>
                 <p className="chart-subtitle text-secondary">Order done</p>
               </div>
             </Stack>
@@ -124,7 +220,7 @@ const Orders = () => {
                 />
               </span>
               <div>
-                <span className="fw-bold">$2.096</span>
+                <span className="fw-bold">{orderStats.totalIncome}</span>
                 <p className="chart-subtitle text-secondary">Total income</p>
               </div>
             </Stack>
@@ -154,12 +250,15 @@ const Orders = () => {
                 gap={3}
               >
                 <div>
-                  <Form.Select aria-label="filtering">
-                    <option>10</option>
-                    <option>20</option>
-                    <option>50</option>
-                    <option>100</option>
-                    <option>All</option>
+                  <Form.Select
+                    aria-label="filtering"
+                    onChange={handleFiltering}
+                  >
+                    <option value="10">10</option>
+                    <option value="20">20</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                    <option value="all">All</option>
                   </Form.Select>
                 </div>
                 <div>
@@ -167,109 +266,70 @@ const Orders = () => {
                     <InputGroup.Text>
                       <CIcon icon={cilSearch} className="icon-size" />
                     </InputGroup.Text>
-                    <Form.Control type="search" placeholder="Search..." />
+                    <Form.Control
+                      type="search"
+                      placeholder="Search..."
+                      onChange={handleSearchOrders}
+                    />
                   </InputGroup>
                 </div>
               </Stack>
               <Table responsive="sm">
                 <thead>
                   <tr>
-                    <th className="text-secondary">QUEUE ID</th>
-                    <th className="text-secondary">DATE</th>
                     <th className="text-secondary">CUSTOMER</th>
-                    <th className="text-secondary">SERVICE TYPE</th>
-                    <th className="text-secondary">ITEM NAME</th>
-                    <th className="text-secondary">QTY</th>
                     <th className="text-secondary">STATUS</th>
-                    <th className="text-secondary">TOTAL</th>
+                    <th className="text-secondary">AMOUNT</th>
                     <th className="text-secondary">ACTION</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td>#QN0068</td>
-                    <td>NOV 26, 2023</td>
-                    <td>Maulana</td>
-                    <td>Delivery</td>
-                    <td>American Style burger</td>
-                    <td>1</td>
-                    <td>
-                      <Badge bg="primary">NEW</Badge>
-                    </td>
-                    <td>$75.00</td>
-                    <td>
-                      <Row>
-                        <Col>
-                          <Button
-                            variant="outline-primary"
-                            className="rounded-circle"
-                            type="submit"
-                            size="sm"
-                          >
-                            <CIcon icon={cilPencil} className="icon-size" />
-                          </Button>
-                        </Col>
-                        <Col>
-                          <Button
-                            variant="outline-primary"
-                            className="rounded-circle"
-                            type="submit"
-                            size="sm"
-                          >
-                            <CIcon icon={cilTrash} className="icon-size" />
-                          </Button>
-                        </Col>
-                      </Row>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>#QN0068</td>
-                    <td>NOV 26, 2023</td>
-                    <td>Maulana</td>
-                    <td>Delivery</td>
-                    <td>American Style burger</td>
-                    <td>1</td>
-                    <td>
-                      <Badge bg="success">NEW</Badge>
-                    </td>
-                    <td>$75.00</td>
-                  </tr>
-                  <tr>
-                    <td>#QN0068</td>
-                    <td>NOV 26, 2023</td>
-                    <td>Maulana</td>
-                    <td>Take Away</td>
-                    <td>American Style burger</td>
-                    <td>1</td>
-                    <td>
-                      <Badge bg="danger">NEW</Badge>
-                    </td>
-                    <td>$75.00</td>
-                  </tr>
-                  <tr>
-                    <td>#QN0068</td>
-                    <td>NOV 26, 2023</td>
-                    <td>Maulana</td>
-                    <td>Delivery</td>
-                    <td>American Style burger</td>
-                    <td>1</td>
-                    <td>
-                      <Badge bg="warning">NEW</Badge>
-                    </td>
-                    <td>$75.00</td>
-                  </tr>
-                  <tr>
-                    <td>#QN0068</td>
-                    <td>NOV 26, 2023</td>
-                    <td>Maulana</td>
-                    <td>Take Away</td>
-                    <td>Sushi Platter</td>
-                    <td>1</td>
-                    <td>
-                      <Badge bg="primary">NEW</Badge>
-                    </td>
-                    <td>$75.00</td>
-                  </tr>
+                  {orders.data.map((order) => (
+                    <tr key={order.id}>
+                      <td>{order.customer.firstname} {order.customer.lastname}</td>
+                      <td>
+                        <Badge bg="primary">{order.status}</Badge>
+                      </td>
+                      <td>{order.amount}</td>
+                      <td>
+                        <Row>
+                          <Col>
+                            <Button
+                              variant="outline-primary"
+                              className="rounded-circle"
+                              type="submit"
+                              size="sm"
+                            >
+                              <CIcon icon={cilPencil} className="icon-size" />
+                            </Button>
+                          </Col>
+                          <Col>
+                            <Button
+                              variant="outline-primary"
+                              className="rounded-circle"
+                              type="submit"
+                              size="sm"
+                            >
+                              <CIcon
+                                icon={cilLowVision}
+                                className="icon-size"
+                              />
+                            </Button>
+                          </Col>
+                          <Col>
+                            <Button
+                              variant="outline-primary"
+                              className="rounded-circle"
+                              type="submit"
+                              size="sm"
+                            >
+                              <CIcon icon={cilTrash} className="icon-size" />
+                            </Button>
+                          </Col>
+                        </Row>
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </Table>
               <Pagination className="float-end">
@@ -281,6 +341,13 @@ const Orders = () => {
             </div>
           </CardBody>
         </Card>
+        <ToastContainer
+          position="top-end"
+          className="p-3"
+          style={{ zIndex: 1 }}
+        >
+          {toast}
+        </ToastContainer>
       </Container>
     </>
   );

@@ -65,7 +65,6 @@ const Login = () => {
                 resetForm();
               })
               .catch((error) => {
-                console.error(error);
                 setToast(
                   <Toast
                     onClose={() => setToast(false)}

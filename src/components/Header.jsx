@@ -1,5 +1,6 @@
 import { cilAccountLogout } from '@coreui/icons';
 import CIcon from '@coreui/icons-react';
+import { useEffect } from 'react';
 import { Container, Nav, Navbar } from 'react-bootstrap';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 
@@ -40,11 +41,17 @@ const Header = () => {
       break;
   }
 
+  useEffect(() => {
+    if (!user) {
+      navigate('/login');
+    }
+  }, []);
+
   const logout = () => {
     localStorage.removeItem('user');
     localStorage.removeItem('token');
-    navigate('/login');
-  }
+    navigate('/');
+  };
 
   return (
     <>
@@ -114,7 +121,11 @@ const Header = () => {
                 )}
               </Nav.Item>
               <Nav.Item>
-                <CIcon icon={cilAccountLogout} className='icon-size text-danger' onClick={logout} />
+                <CIcon
+                  icon={cilAccountLogout}
+                  className="icon-size text-danger"
+                  onClick={logout}
+                />
               </Nav.Item>
             </Nav>
           </Nav>

@@ -5,7 +5,6 @@ import {
   Row,
   Card,
   CardBody,
-  Spinner,
 } from 'react-bootstrap';
 import { Outlet } from 'react-router-dom';
 import { Suspense } from 'react';

@@ -18,7 +18,6 @@ import {
   Modal,
   Toast,
   ToastContainer,
-  Spinner,
 } from 'react-bootstrap';
 import AddCustomer from '../components/AddCustomer';
 import { fetchProducts } from '../../server-processing';
@@ -92,7 +91,25 @@ const Home = () => {
       all: INITIAL_PARAMS.all,
     });
   };
-  
+
+  const handleFiltering = (e) => {
+    let perPage = 15;
+    let all = false;
+
+    if (e.target.value === 'all') {
+      all = true
+    } else {
+      perPage = Number(e.target.value);
+    }
+
+    fetchData({
+      page: INITIAL_PARAMS.page,
+      perPage,
+      search: INITIAL_PARAMS.search,
+      all,
+    });
+  }
+
   const handleCustomerInformation = (productId) => {
     console.log(productId);
     setShow(!show);
@@ -112,12 +129,12 @@ const Home = () => {
                 gap={3}
               >
                 <div>
-                  <Form.Select aria-label="filtering">
-                    <option>10</option>
-                    <option>20</option>
-                    <option>50</option>
-                    <option>100</option>
-                    <option>All</option>
+                  <Form.Select aria-label="filtering" onChange={handleFiltering}>
+                    <option value="10">10</option>
+                    <option value="20">20</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                    <option value="all">All</option>
                   </Form.Select>
                 </div>
                 <div>
